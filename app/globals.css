@@ -617,3 +617,231 @@
     .foot-inner { flex-direction: column; text-align: center; }
   }
 }
+
+/* ================================================================
+   COZY JRPG — scoped overrides on top of lp-root base styles
+   ================================================================ */
+
+/* ── Shared JRPG token overrides ─────────────────────────────── */
+.lp-root {
+  --jrpg-border: 2px solid var(--ink-2);
+  --jrpg-shadow: 4px 4px 0 var(--ink-2);
+  --jrpg-shadow-sm: 2px 2px 0 var(--hair-2);
+  --jrpg-btn-shadow: 0 4px 0 var(--terra-deep);
+  --jrpg-radius: 6px;
+}
+
+/* ── Hero card → JRPG dialogue box ─────────────────────────── */
+.lp-root .hero-card {
+  border: var(--jrpg-border);
+  box-shadow: var(--jrpg-shadow), inset 0 0 0 4px rgba(58,45,32,0.06);
+  border-radius: 12px;
+}
+
+/* ── Trip card inside hero ──────────────────────────────────── */
+.lp-root .trip-card {
+  border: var(--jrpg-border);
+  box-shadow: var(--jrpg-shadow-sm);
+  border-radius: var(--jrpg-radius);
+}
+
+/* ── Moment icon slots ─────────────────────────────────────── */
+.lp-root .moment .ico {
+  border: 1.5px solid var(--hair-2);
+  box-shadow: var(--jrpg-shadow-sm);
+  border-radius: var(--jrpg-radius);
+}
+
+/* ── Feature cards → item boxes ─────────────────────────────── */
+.lp-root .feature {
+  border: var(--jrpg-border);
+  box-shadow: var(--jrpg-shadow);
+  border-radius: var(--jrpg-radius);
+}
+
+/* ── Postcard ────────────────────────────────────────────────── */
+.lp-root .postcard {
+  border: var(--jrpg-border);
+  box-shadow: var(--jrpg-shadow);
+  border-radius: 10px;
+}
+
+.lp-root .pc-stat {
+  border: 1px solid var(--hair-2);
+  box-shadow: var(--jrpg-shadow-sm);
+  border-radius: var(--jrpg-radius);
+}
+
+/* ── Eyebrow tag ─────────────────────────────────────────────── */
+.lp-root .eyebrow {
+  border: 1.5px solid var(--terra-soft);
+  border-radius: var(--jrpg-radius);
+}
+
+/* ── Step badge ──────────────────────────────────────────────── */
+.lp-root .step .badge {
+  border: 2px solid var(--gold-deep);
+  box-shadow: 0 0 0 3px var(--gold-tint), var(--jrpg-shadow-sm);
+  border-radius: 50%;
+}
+
+/* ── Command buttons — btn-primary ──────────────────────────── */
+.lp-root .btn-primary {
+  border-radius: var(--jrpg-radius);
+  border: 2px solid var(--terra-deep);
+  box-shadow: var(--jrpg-btn-shadow);
+  transform: translateY(0);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.lp-root .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--terra-deep);
+}
+.lp-root .btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--terra-deep);
+}
+
+/* ── Command buttons — btn-ghost ─────────────────────────────── */
+.lp-root .btn-ghost {
+  border-radius: var(--jrpg-radius);
+  border: 2px solid var(--ink-2);
+  box-shadow: 0 4px 0 var(--hair-2);
+  transform: translateY(0);
+  transition: transform 80ms ease, box-shadow 80ms ease, background 120ms ease;
+}
+.lp-root .btn-ghost:hover {
+  background: var(--cream-3);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--hair-2);
+}
+.lp-root .btn-ghost:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--hair-2);
+}
+
+/* ── Nav CTA → same command style as btn-primary ────────────── */
+.lp-root .nav-cta {
+  border-radius: var(--jrpg-radius);
+  border: 2px solid var(--terra-deep);
+  box-shadow: 0 3px 0 var(--terra-deep);
+  transform: translateY(0);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.lp-root .nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--terra-deep);
+}
+.lp-root .nav-cta:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--terra-deep);
+}
+
+/* ================================================================
+   LOGIN PAGE
+   ================================================================ */
+.login-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  background: var(--paper);
+  border: 2px solid var(--ink-2);
+  box-shadow: 6px 6px 0 var(--ink-2);
+  border-radius: 12px;
+  padding: 48px 40px 40px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+.login-emblem {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.login-title {
+  font-family: var(--font-cinzel);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  margin: 0 0 10px;
+}
+
+.login-sub {
+  font-family: var(--font-jakarta);
+  font-size: 14.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.login-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--hair-2);
+  margin: 28px 0;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-jakarta);
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid var(--ink-2);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 var(--ink-2);
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.google-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--ink-2);
+}
+.google-btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--ink-2);
+}
+.google-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.google-btn-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--hair-2);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-note {
+  font-size: 12px;
+  color: var(--muted-2);
+  margin: 16px 0 0;
+  line-height: 1.5;
+}
