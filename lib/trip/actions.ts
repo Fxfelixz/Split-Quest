@@ -68,7 +68,9 @@ export async function createTrip(input: {
     if (!name) return { success: false, error: 'Quest name is required' }
     if (name.length > 100) return { success: false, error: 'Quest name must be 100 characters or less' }
 
-    const { data, error } = await supabase
+    // Insert without .select() to avoid PostgREST applying SELECT RLS
+    // before the trigger has added the owner to trip_members.
+    const { error: insertError } = await supabase
       .from('trips')
       .insert({
         owner_id: user.id,
@@ -77,10 +79,21 @@ export async function createTrip(input: {
         started_at: input.started_at ?? null,
         ended_at: input.ended_at ?? null,
       })
-      .select()
+
+    if (insertError) return { success: false, error: insertError.message }
+
+    // Fetch the newly created trip in a separate query.
+    // By this point the trigger has committed the owner into trip_members,
+    // so the SELECT RLS (is_trip_member) will pass.
+    const { data, error: selectError } = await supabase
+      .from('trips')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single()
 
-    if (error) return { success: false, error: error.message }
+    if (selectError) return { success: false, error: selectError.message }
 
     revalidatePath('/dashboard')
     return { success: true, data }
