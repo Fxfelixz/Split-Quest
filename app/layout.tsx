@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/sonner";
 import {
   Newsreader,
   Cinzel,
@@ -63,6 +64,7 @@ export default function RootLayout({
         className={`${newsreader.variable} ${cinzel.variable} ${jakarta.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${pressStart2P.variable} min-h-full flex flex-col`}
       >
         {children}
+        <Toaster richColors />
       </body>
     </html>
   );
