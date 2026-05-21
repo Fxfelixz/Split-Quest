@@ -1,19 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
 import { getTripsForUser } from '@/lib/trip/actions'
 import { TripList } from '@/components/trip/TripList'
 import { CreateTripDialog } from '@/components/trip/CreateTripDialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
   const result = await getTripsForUser()
 
   if (!result.success) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-muted-foreground">{result.error}</p>
       </div>
     )
@@ -23,43 +18,25 @@ export default async function DashboardPage() {
   const activeTrips = allTrips.filter((t) => t.status === 'active')
   const settledTrips = allTrips.filter((t) => t.status === 'settled')
 
-  const displayName =
-    user?.user_metadata?.full_name ??
-    user?.user_metadata?.name ??
-    user?.email?.split('@')[0] ??
-    'Adventurer'
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-
-        {/* ── Welcome header ── */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-display text-2xl font-bold tracking-wide sm:text-3xl">
-              Welcome back, {displayName} ⚔️
-            </h1>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              {activeTrips.length} active &nbsp;·&nbsp; {settledTrips.length} settled
-            </p>
-          </div>
-
-          <CreateTripDialog>
-            <Button
-              className="
-                shrink-0
-                [box-shadow:0_3px_0_0_hsl(var(--primary)/0.6)]
-                hover:-translate-y-px hover:[box-shadow:0_4px_0_0_hsl(var(--primary)/0.6)]
-                active:translate-y-0.5 active:[box-shadow:0_1px_0_0_hsl(var(--primary)/0.6)]
-                transition-all duration-75
-              "
-            >
-              + New Quest
-            </Button>
-          </CreateTripDialog>
+    <>
+      {/* ── Topbar ── */}
+      <div className="app-topbar">
+        <div className="app-crumb">
+          <span>Dashboard</span>
         </div>
+        <CreateTripDialog>
+          <button className="dash-btn-primary">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M6.5 1.5v10M1.5 6.5h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            New quest
+          </button>
+        </CreateTripDialog>
+      </div>
 
-        {/* ── Tabs ── */}
+      {/* ── Content ── */}
+      <div className="app-content">
         <Tabs defaultValue="active">
           <TabsList className="mb-6">
             <TabsTrigger value="active">
@@ -76,7 +53,7 @@ export default async function DashboardPage() {
           <TabsContent value="active">
             <TripList
               trips={activeTrips}
-              emptyMessage="Start your first quest with the button above"
+              emptyMessage="Start your first quest — click New quest above"
             />
           </TabsContent>
 
@@ -87,8 +64,7 @@ export default async function DashboardPage() {
             />
           </TabsContent>
         </Tabs>
-
       </div>
-    </div>
+    </>
   )
 }

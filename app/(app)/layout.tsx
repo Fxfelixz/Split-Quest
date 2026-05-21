@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { AppNav } from '@/components/shared/AppNav'
+import { getTripsForUser } from '@/lib/trip/actions'
+import { AppSidebar } from '@/components/shared/AppSidebar'
 
 export default async function AppLayout({
   children,
@@ -12,10 +13,26 @@ export default async function AppLayout({
 
   if (!user) redirect('/login')
 
+  const tripsResult = await getTripsForUser()
+  const trips = tripsResult.success ? tripsResult.data : []
+
+  const fullName: string =
+    user.user_metadata?.full_name ??
+    user.user_metadata?.name ??
+    user.email?.split('@')[0] ??
+    'Adventurer'
+
+  const initials = fullName
+    .split(' ')
+    .map((w: string) => w[0] ?? '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+
   return (
-    <>
-      <AppNav />
-      {children}
-    </>
+    <div className="app-shell">
+      <AppSidebar user={{ name: fullName, initials }} trips={trips} />
+      <main className="app-main">{children}</main>
+    </div>
   )
 }
