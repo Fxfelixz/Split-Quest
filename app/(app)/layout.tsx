@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { AppNav } from '@/components/shared/AppNav'
 
 export default async function AppLayout({
   children,
@@ -11,5 +12,10 @@ export default async function AppLayout({
 
   if (!user) redirect('/login')
 
-  return <>{children}</>
+  return (
+    <>
+      <AppNav />
+      {children}
+    </>
+  )
 }
