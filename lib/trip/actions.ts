@@ -50,6 +50,46 @@ export async function getTripsForUser(): Promise<ActionResult<TripWithMembers[]>
   }
 }
 
+// ─── getTripById ──────────────────────────────────────────────────
+export async function getTripById(tripId: string): Promise<ActionResult<TripWithMembers>> {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { success: false, error: 'Not authenticated' }
+
+    const { data, error } = await supabase
+      .from('trips')
+      .select(`
+        *,
+        trip_members(
+          user_id,
+          profiles(display_name, avatar_url)
+        )
+      `)
+      .eq('id', tripId)
+      .single()
+
+    if (error) return { success: false, error: error.message }
+
+    const trip: TripWithMembers = {
+      ...data,
+      members: (data.trip_members ?? []).map((tm: {
+        user_id: string
+        profiles: { display_name: string | null; avatar_url: string | null } | null
+      }) => ({
+        user_id: tm.user_id,
+        display_name: tm.profiles?.display_name ?? null,
+        avatar_url: tm.profiles?.avatar_url ?? null,
+      })),
+      member_count: (data.trip_members ?? []).length,
+    }
+
+    return { success: true, data: trip }
+  } catch {
+    return { success: false, error: 'Failed to load trip' }
+  }
+}
+
 // ─── createTrip ───────────────────────────────────────────────────
 // สร้าง trip ใหม่ — trigger on_trip_created จะ auto-add owner เป็น member
 export async function createTrip(input: {
