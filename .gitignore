@@ -28,3 +28,9 @@ pnpm-debug.log*
 # typescript
 tsconfig.tsbuildinfo
 next-env.d.ts
+
+# test / dev tooling (not for production)
+mock-db.json
+test-results/
+tests/
+lib/supabase/mock.ts
