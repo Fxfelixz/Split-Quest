@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+html { scroll-behavior: smooth; }
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -1231,3 +1233,385 @@ body::before {
   margin: 16px 0 0;
   line-height: 1.5;
 }
+
+/* ================================================================
+   TRIP PAGE — EXPENSES + BALANCES
+   ================================================================ */
+
+/* Panel header buttons */
+.trip-panel-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 700;
+  cursor: pointer; transition: transform .1s, box-shadow .1s;
+  white-space: nowrap; border: none;
+}
+.trip-panel-btn-primary {
+  background: var(--terra); color: #faf3e0;
+  box-shadow: 0 2px 0 var(--terra-deep);
+}
+.trip-panel-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 3px 0 var(--terra-deep); }
+.trip-panel-btn-primary:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--terra-deep); }
+
+/* Invite button */
+.trip-invite-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600;
+  background: transparent; color: var(--ink-2);
+  border: 1px solid var(--hair-2); cursor: pointer;
+  transition: background .12s;
+}
+.trip-invite-btn:hover { background: var(--cream-2); }
+.trip-invite-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Timeline expense feed */
+.timeline-feed {
+  position: relative;
+  padding: 6px 20px 16px 48px;
+}
+
+.timeline-feed::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 24px; bottom: 20px;
+  width: 1.5px;
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.timeline-group { display: flex; flex-direction: column; }
+
+.timeline-date {
+  position: relative;
+  padding: 14px 0 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.timeline-date::before {
+  content: '';
+  position: absolute;
+  left: -24px; top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 9px; height: 9px;
+  background: var(--background);
+  border: 1.5px solid var(--terra);
+  border-radius: 1px;
+}
+
+.timeline-card {
+  position: relative;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+  transition: background .1s;
+  cursor: default;
+}
+.timeline-card:hover { background: var(--cream-2); }
+
+.timeline-card::before {
+  content: '';
+  position: absolute;
+  left: -24px; top: 50%;
+  transform: translateY(-50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--terra);
+  border: 2.5px solid var(--background);
+  box-shadow: 0 0 0 1px var(--terra);
+}
+
+.expense-cat {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: grid; place-items: center; font-size: 17px;
+  flex-shrink: 0;
+}
+.expense-cat.food { background: var(--terra-tint); }
+.expense-cat.drink { background: var(--sage-tint); }
+.expense-cat.transport { background: #e8f0fe; }
+.expense-cat.accommodation { background: #fce8f3; }
+.expense-cat.entertainment { background: var(--gold-tint); }
+.expense-cat.shopping { background: var(--terra-tint); }
+.expense-cat.other { background: var(--cream-2); }
+
+.expense-title { font-size: 13.5px; font-weight: 600; color: var(--foreground); line-height: 1.2; }
+.expense-payer {
+  font-family: var(--font-mono), monospace; font-size: 10px;
+  color: var(--muted-foreground); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-top: 3px;
+}
+.expense-amount {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 600; font-size: 15px; color: var(--foreground);
+  text-align: right;
+}
+
+/* Trip hero total */
+.trip-hero-total {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 13px; color: var(--sage-deep); font-weight: 600;
+  background: var(--sage-tint); border-radius: 999px;
+  padding: 3px 10px; margin-left: 4px;
+}
+
+/* Balance amounts */
+.trip-party-bal-amt.owed { color: var(--sage-deep); }
+.trip-party-bal-amt.owes { color: var(--terra); }
+
+/* Settle up */
+.trip-settle {
+  border-top: 1px dashed var(--hair-2);
+  padding: 14px 14px 12px;
+}
+.trip-settle-head {
+  font-family: var(--font-mono), monospace; font-size: 10px;
+  letter-spacing: 0.16em; color: var(--muted-foreground);
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center;
+}
+.settle-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 10px; border-radius: 10px;
+  font-size: 13px; font-weight: 500; color: var(--foreground);
+  background: var(--cream-2); margin-bottom: 7px;
+}
+.settle-item:last-child { margin-bottom: 0; }
+.settle-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.settle-arrow { color: var(--terra); flex-shrink: 0; }
+.settle-amount {
+  margin-left: auto; font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 700; color: var(--terra); font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   INVITE PAGE
+   ================================================================ */
+.invite-root {
+  min-height: calc(100vh - 80px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.invite-card {
+  background: var(--card); border: 1px solid var(--hair);
+  border-radius: 22px; padding: 48px 40px;
+  max-width: 420px; width: 100%; text-align: center;
+  box-shadow: 0 1px 0 rgba(58,45,32,0.04), 0 20px 40px rgba(58,45,32,0.07);
+}
+.invite-emoji { font-size: 64px; line-height: 1; margin-bottom: 16px; display: block; }
+.invite-trip-name {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 28px; font-weight: 600; color: var(--foreground);
+  margin: 0 0 8px; letter-spacing: -0.015em;
+}
+.invite-meta { color: var(--muted-foreground); font-size: 14px; margin: 0 0 32px; }
+.invite-join-btn {
+  display: block; width: 100%;
+  background: var(--terra); color: #faf3e0;
+  border: none; border-radius: 12px;
+  padding: 14px 24px; font-size: 16px; font-weight: 700;
+  box-shadow: 0 3px 0 var(--terra-deep); cursor: pointer;
+  transition: transform .1s, box-shadow .1s;
+  text-align: center;
+}
+.invite-join-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 var(--terra-deep); }
+.invite-join-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 1px 0 var(--terra-deep); }
+.invite-join-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+/* Add expense select */
+.exp-select {
+  width: 100%; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); color: var(--foreground);
+  font-size: 14px; cursor: pointer;
+  height: 40px; outline: none;
+}
+.exp-select:focus { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+/* Split mode tabs */
+.split-tabs {
+  display: flex; gap: 0;
+  background: var(--cream-2); border-radius: 10px; padding: 3px;
+}
+.split-tab-item {
+  flex: 1; padding: 7px 8px; border-radius: 8px; border: none;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  background: transparent; color: var(--muted-foreground);
+  transition: background .12s, color .12s;
+}
+.split-tab-item.active {
+  background: var(--card); color: var(--foreground);
+  box-shadow: 0 1px 4px rgba(58,45,32,0.12);
+}
+
+/* Member split rows */
+.member-split-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px; border-radius: 10px;
+  transition: background .1s;
+}
+.member-split-row:hover { background: var(--cream-2); }
+
+.member-toggle {
+  width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+  border: 2px solid var(--border); background: transparent;
+  cursor: pointer; padding: 0;
+  display: grid; place-items: center;
+  transition: background .1s, border-color .1s;
+  position: relative;
+}
+.member-toggle.checked { background: var(--terra); border-color: var(--terra); }
+.member-toggle.checked::after {
+  content: "";
+  width: 4px; height: 7px;
+  border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+  transform: rotate(45deg) translate(-1px, -1px);
+  display: block;
+}
+
+.member-share-input {
+  width: 80px; padding: 5px 8px;
+  border: 1px solid var(--border); border-radius: 7px;
+  background: var(--card); color: var(--foreground);
+  font-size: 13px; text-align: right; outline: none;
+}
+.member-share-input:focus { outline: 2px solid var(--ring); outline-offset: 1px; }
+
+.member-share-preview {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 600; font-size: 13px; color: var(--muted-foreground);
+  margin-left: auto;
+}
+
+/* ================================================================
+   DASHBOARD CARD STATS
+   ================================================================ */
+.dash-stat-pill {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 12.5px; font-weight: 600; color: var(--sage-deep);
+  background: var(--sage-tint); border-radius: 999px;
+  padding: 2px 9px;
+}
+.dash-stat-chip {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px; color: var(--muted-foreground);
+  letter-spacing: 0.04em;
+}
+
+/* ================================================================
+   TRIP SUMMARY DIALOG
+   ================================================================ */
+.trip-summary-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: 9px;
+  font-size: 13px; font-weight: 600;
+  background: var(--card); color: var(--ink-2);
+  border: 1px solid var(--hair-2);
+  box-shadow: 0 1px 0 var(--hair-2);
+  cursor: pointer; transition: background .12s, box-shadow .1s;
+}
+.trip-summary-btn:hover { background: var(--cream-2); box-shadow: 0 2px 0 var(--hair-2); }
+
+.summary-body { display: flex; flex-direction: column; }
+
+.summary-section {
+  padding: 18px 0;
+  border-top: 1px dashed var(--hair-2);
+}
+.summary-section:first-child { padding-top: 6px; border-top: none; }
+
+.summary-label {
+  font-family: var(--font-mono), monospace; font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted-foreground); margin-bottom: 10px;
+  display: flex; align-items: center;
+}
+
+.summary-total {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 42px; font-weight: 600; color: var(--foreground);
+  letter-spacing: -0.025em; line-height: 1;
+  margin-bottom: 6px;
+}
+.summary-sub {
+  font-size: 12.5px; color: var(--muted-foreground);
+  font-family: var(--font-mono), monospace; letter-spacing: 0.04em;
+}
+
+/* Category rows */
+.summary-cat-row {
+  display: grid; grid-template-columns: 28px 1fr auto auto;
+  align-items: center; gap: 10px;
+  padding: 7px 0;
+}
+.summary-cat-icon { font-size: 17px; text-align: center; }
+.summary-cat-name { font-size: 14px; font-weight: 500; color: var(--foreground); }
+.summary-cat-amt {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 14px; font-weight: 600; color: var(--foreground);
+}
+.summary-cat-pct {
+  font-family: var(--font-mono), monospace; font-size: 10px;
+  color: var(--muted-foreground); letter-spacing: 0.04em; min-width: 28px; text-align: right;
+}
+
+/* Member rows */
+.summary-member-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+}
+.summary-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: #faf3e0; font-weight: 700; font-size: 11px;
+  overflow: hidden; flex-shrink: 0;
+}
+.summary-member-info { flex: 1; min-width: 0; }
+.summary-member-name { font-size: 14px; font-weight: 600; color: var(--foreground); }
+.summary-member-paid { font-size: 11.5px; color: var(--muted-foreground); margin-top: 2px; }
+.summary-member-net { text-align: right; flex-shrink: 0; }
+.summary-net-amt { font-family: var(--font-newsreader), Georgia, serif; font-size: 15px; font-weight: 600; line-height: 1.2; }
+.summary-net-amt.owed { color: var(--sage-deep); }
+.summary-net-amt.owes { color: var(--terra); }
+.summary-net-amt.settled { color: var(--muted-foreground); font-size: 13px; }
+.summary-net-lbl { font-size: 10.5px; color: var(--muted-foreground); margin-top: 2px; font-family: var(--font-mono), monospace; letter-spacing: 0.04em; }
+
+/* Empty state */
+.summary-empty {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 32px 0;
+  font-size: 32px; gap: 12px;
+}
+.summary-empty p { font-size: 14px; color: var(--muted-foreground); margin: 0; }
+
+/* Summary share footer */
+.summary-share-row {
+  border-top: 1.5px solid var(--border);
+  padding: 14px 20px 4px;
+  display: flex;
+  gap: 8px;
+}
+
+.summary-copy-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--foreground);
+  background: var(--cream-2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .1s, border-color .1s;
+  box-shadow: 2px 2px 0 0 var(--border);
+}
+.summary-copy-btn:hover { background: var(--secondary); }
+.summary-copy-btn:disabled { opacity: 0.7; cursor: default; color: var(--sage-deep); }

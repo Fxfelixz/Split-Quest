@@ -1,6 +1,12 @@
 import { notFound } from 'next/navigation'
 import { getTripById } from '@/lib/trip/actions'
-import { formatDateRange } from '@/lib/utils/format'
+import { getExpensesForTrip, getTripBalances } from '@/lib/expense/actions'
+import { formatDateRange, formatMoney } from '@/lib/utils/format'
+import { createClient } from '@/lib/supabase/server'
+import { AddExpenseDialog } from '@/components/expense/AddExpenseDialog'
+import { ExpenseList } from '@/components/expense/ExpenseList'
+import { InviteButton } from '@/components/trip/InviteButton'
+import { TripSummaryDialog } from '@/components/trip/TripSummaryDialog'
 
 const AVATAR_COLORS = [
   'linear-gradient(135deg, #c4554a, #a13a30)',
@@ -14,13 +20,24 @@ type Props = { params: Promise<{ id: string }> }
 
 export default async function TripPage({ params }: Props) {
   const { id } = await params
+
   const result = await getTripById(id)
-
   if (!result.success) notFound()
-
   const trip = result.data
-  const dateRange = formatDateRange(trip.started_at, trip.ended_at)
 
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const currentUserId = user?.id ?? ''
+
+  const [expensesResult, balancesResult] = await Promise.all([
+    getExpensesForTrip(id),
+    getTripBalances(id, trip.members),
+  ])
+
+  const expenses = expensesResult.success ? expensesResult.data : []
+  const balances = balancesResult.success ? balancesResult.data : null
+
+  const dateRange = formatDateRange(trip.started_at, trip.ended_at)
   const statusLabel = trip.status === 'active' ? 'On the road' : trip.status === 'settled' ? 'Quest complete' : 'Archived'
   const isActive = trip.status === 'active'
 
@@ -35,13 +52,26 @@ export default async function TripPage({ params }: Props) {
           </svg>
           <b>{trip.name}</b>
         </div>
+        <TripSummaryDialog
+          tripName={trip.name}
+          dateRange={dateRange}
+          coverEmoji={trip.cover_emoji}
+          expenses={expenses}
+          balances={balances}
+        >
+          <button className="trip-summary-btn">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 3.5h9M2 6.5h9M2 9.5h5.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+            Summary
+          </button>
+        </TripSummaryDialog>
       </div>
 
       <div className="app-content">
 
         {/* ── Hero ── */}
         <section className="trip-hero">
-          {/* Landscape scene */}
           <div className="trip-hero-scene">
             <span className="trip-hero-sun" />
             <span className="trip-hero-cloud" style={{ top: 18, left: 80, width: 80, height: 14 }} />
@@ -56,7 +86,6 @@ export default async function TripPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Trip info */}
           <div className="trip-hero-info">
             <div>
               <div className="trip-hero-title-row">
@@ -66,6 +95,11 @@ export default async function TripPage({ params }: Props) {
                   {isActive && <span className="trip-status-dot" />}
                   {statusLabel}
                 </span>
+                {balances && balances.total > 0 && (
+                  <span className="trip-hero-total">
+                    {formatMoney(balances.total)} total
+                  </span>
+                )}
               </div>
               <div className="trip-hero-meta">
                 <span>{dateRange}</span>
@@ -75,9 +109,14 @@ export default async function TripPage({ params }: Props) {
                     <span><b>{trip.member_count}</b> {trip.member_count === 1 ? 'hero' : 'heroes'}</span>
                   </>
                 )}
+                {expenses.length > 0 && (
+                  <>
+                    <span className="trip-hero-sep">·</span>
+                    <span><b>{expenses.length}</b> {expenses.length === 1 ? 'expense' : 'expenses'}</span>
+                  </>
+                )}
               </div>
 
-              {/* Party avatars */}
               {trip.members.length > 0 && (
                 <div className="trip-hero-party">
                   <div className="trip-avatar-stack">
@@ -109,26 +148,36 @@ export default async function TripPage({ params }: Props) {
         {/* ── Panels ── */}
         <div className="trip-grid">
 
-          {/* Expense journal — empty state */}
+          {/* Expense journal */}
           <section className="trip-panel">
             <div className="trip-panel-head">
               <h2 className="trip-panel-title">Expense <em>journal</em></h2>
+              <AddExpenseDialog
+                tripId={trip.id}
+                members={trip.members}
+                currentUserId={currentUserId}
+              >
+                <button className="trip-panel-btn trip-panel-btn-primary">
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                    <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                  Add expense
+                </button>
+              </AddExpenseDialog>
             </div>
-            <div className="trip-empty-state">
-              <span className="trip-empty-icon">📜</span>
-              <p className="trip-empty-text">No expenses logged yet</p>
-              <p className="trip-empty-sub">Expense logging coming soon</p>
-            </div>
+            <ExpenseList expenses={expenses} />
           </section>
 
-          {/* Party */}
+          {/* Party + Balances */}
           <section className="trip-panel">
             <div className="trip-panel-head">
               <h2 className="trip-panel-title">Party <em>members</em></h2>
+              <InviteButton tripId={trip.id} />
             </div>
             <div className="trip-party-list">
-              {trip.members.map((m, i) => {
+              {(balances?.members ?? trip.members.map(m => ({ ...m, paid: 0, owed: 0, net: 0 }))).map((m, i) => {
                 const label = (m.display_name ?? m.user_id).slice(0, 2).toUpperCase()
+                const netClass = m.net > 0.01 ? 'owed' : m.net < -0.01 ? 'owes' : ''
                 return (
                   <div key={m.user_id} className="trip-party-member">
                     <div
@@ -144,13 +193,39 @@ export default async function TripPage({ params }: Props) {
                       <div className="trip-party-role">{i === 0 ? 'Quest leader' : 'Party member'}</div>
                     </div>
                     <div className="trip-party-bal">
-                      <div className="trip-party-bal-amt">—</div>
-                      <div className="trip-party-bal-lbl">balance</div>
+                      <div className={`trip-party-bal-amt ${netClass}`}>
+                        {Math.abs(m.net) < 0.01 ? '—' : formatMoney(Math.abs(m.net))}
+                      </div>
+                      <div className="trip-party-bal-lbl">
+                        {m.net > 0.01 ? 'owed to them' : m.net < -0.01 ? 'they owe' : 'settled'}
+                      </div>
                     </div>
                   </div>
                 )
               })}
             </div>
+
+            {/* Settle up */}
+            {balances && balances.transactions.length > 0 && (
+              <div className="trip-settle">
+                <div className="trip-settle-head">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ display: 'inline', marginRight: 6 }}>
+                    <path d="M1 6h10M7.5 2.5L11 6l-3.5 3.5M4.5 2.5L1 6l3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Settle up
+                </div>
+                {balances.transactions.map((t, i) => (
+                  <div key={i} className="settle-item">
+                    <span className="settle-name">{t.from_name ?? 'Hero'}</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="settle-arrow" aria-hidden>
+                      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="settle-name">{t.to_name ?? 'Hero'}</span>
+                    <span className="settle-amount">{formatMoney(t.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
         </div>

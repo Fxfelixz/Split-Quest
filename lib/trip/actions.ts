@@ -31,6 +31,24 @@ export async function getTripsForUser(): Promise<ActionResult<TripWithMembers[]>
 
     if (error) return { success: false, error: error.message }
 
+    // Fetch expense stats (count + total) per trip in one query
+    const tripIds = (data ?? []).map(t => t.id)
+    const expenseStats: Record<string, { count: number; total: number }> = {}
+
+    if (tripIds.length > 0) {
+      const { data: expRows } = await supabase
+        .from('expenses')
+        .select('trip_id, final_amount')
+        .in('trip_id', tripIds)
+
+      for (const e of expRows ?? []) {
+        const s = expenseStats[e.trip_id] ?? { count: 0, total: 0 }
+        s.count += 1
+        s.total += e.final_amount
+        expenseStats[e.trip_id] = s
+      }
+    }
+
     const trips: TripWithMembers[] = (data ?? []).map(trip => ({
       ...trip,
       members: (trip.trip_members ?? []).map((tm: {
@@ -42,6 +60,8 @@ export async function getTripsForUser(): Promise<ActionResult<TripWithMembers[]>
         avatar_url: tm.profiles?.avatar_url ?? null,
       })),
       member_count: (trip.trip_members ?? []).length,
+      expense_count: expenseStats[trip.id]?.count ?? 0,
+      total_amount: expenseStats[trip.id]?.total ?? 0,
     }))
 
     return { success: true, data: trips }

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { formatDateRange } from '@/lib/utils/format'
+import { formatDateRange, formatMoney } from '@/lib/utils/format'
 import type { TripWithMembers } from '@/types/trip'
 
 type Props = {
@@ -48,6 +48,20 @@ export function TripCard({ trip }: Props) {
           {formatDateRange(trip.started_at, trip.ended_at)}
         </p>
       </div>
+
+      {/* ── Stats ── */}
+      {((trip.total_amount ?? 0) > 0 || (trip.expense_count ?? 0) > 0) && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {(trip.total_amount ?? 0) > 0 && (
+            <span className="dash-stat-pill">{formatMoney(trip.total_amount!)}</span>
+          )}
+          {(trip.expense_count ?? 0) > 0 && (
+            <span className="dash-stat-chip">
+              {trip.expense_count} {trip.expense_count === 1 ? 'expense' : 'expenses'}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ── Divider ── */}
       <hr className="border-border" />

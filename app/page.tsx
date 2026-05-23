@@ -64,13 +64,13 @@ export default function Home() {
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </QuestButton>
-              <button className="btn-ghost">
+              <a href="#how" className="btn-ghost" style={{ textDecoration: 'none' }}>
                 See how it works
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                   <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.3" />
                   <path d="M5.5 4.5L9 7L5.5 9.5V4.5Z" fill="currentColor" />
                 </svg>
-              </button>
+              </a>
             </div>
 
             <div className="proof">

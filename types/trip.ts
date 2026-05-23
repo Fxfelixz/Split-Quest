@@ -11,4 +11,5 @@ export type TripWithMembers = Trip & {
   }>
   member_count: number
   total_amount?: number
+  expense_count?: number
 }

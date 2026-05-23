@@ -34,3 +34,5 @@ mock-db.json
 test-results/
 tests/
 lib/supabase/mock.ts
+
+.vercel
