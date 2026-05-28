@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { formatMoney } from '@/lib/utils/format'
 import type { ExpenseWithPayer, TripBalances } from '@/types/expense'
+import { TripShareCard } from './TripShareCard'
 
 function buildShareText(
   tripName: string,
@@ -107,6 +108,7 @@ export function TripSummaryDialog({
 }: Props) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [tab, setTab] = useState<'summary' | 'card'>('summary')
 
   function handleCopy() {
     const text = buildShareText(tripName, dateRange, coverEmoji, expenses, balances)
@@ -137,6 +139,42 @@ export function TripSummaryDialog({
           <p className="text-sm text-muted-foreground mt-0.5">{dateRange}</p>
         </DialogHeader>
 
+        {/* ── Tabs ── */}
+        <div className="summary-tabs">
+          <button
+            type="button"
+            className={`summary-tab${tab === 'summary' ? ' active' : ''}`}
+            onClick={() => setTab('summary')}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1 2.5h10M1 6h10M1 9.5h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+            Summary
+          </button>
+          <button
+            type="button"
+            className={`summary-tab${tab === 'card' ? ' active' : ''}`}
+            onClick={() => setTab('card')}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="2" width="10" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+              <path d="M1 5h10" stroke="currentColor" strokeWidth="1.4" />
+            </svg>
+            Share card
+          </button>
+        </div>
+
+        {tab === 'card' ? (
+          <div className="summary-card-tab">
+            <TripShareCard
+              tripName={tripName}
+              dateRange={dateRange}
+              coverEmoji={coverEmoji}
+              expenses={expenses}
+              balances={balances}
+            />
+          </div>
+        ) : (
         <div className="summary-body">
 
           {/* ── Total ── */}
@@ -238,9 +276,10 @@ export function TripSummaryDialog({
           )}
 
         </div>
+        )}
 
         {/* ── Share footer ── */}
-        <div className="summary-share-row">
+        <div className="summary-share-row" style={{ display: tab === 'card' ? 'none' : undefined }}>
           <button
             type="button"
             className="summary-copy-btn"

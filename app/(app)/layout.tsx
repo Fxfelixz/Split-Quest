@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getTripsForUser } from '@/lib/trip/actions'
 import { AppSidebar } from '@/components/shared/AppSidebar'
+import { MobileBottomNav } from '@/components/shared/MobileBottomNav'
 
 export default async function AppLayout({
   children,
@@ -33,6 +34,7 @@ export default async function AppLayout({
     <div className="app-shell">
       <AppSidebar user={{ name: fullName, initials }} trips={trips} />
       <main className="app-main">{children}</main>
+      <MobileBottomNav />
     </div>
   )
 }
